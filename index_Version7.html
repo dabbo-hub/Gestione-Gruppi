@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ristorante San Valentino - RistoPro FULL FIX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f0f4f8 0%, #d9e8f5 100%);
+        }
+
+        /* TAVOLI */
+        .table-btn {
+            min-height: 145px;
+            border: 3px solid #e2e8f0;
+            border-radius: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            position: relative;
+            cursor: pointer !important;
+            background: white;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .table-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.5) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .table-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(59, 130, 246, 0.2);
+            border-color: #3b82f6;
+        }
+
+        .table-btn:active {
+            transform: translateY(-2px);
+        }
+
+        .status-libero {
+            color: #94a3b8;
+            border-style: dashed;
+            border-color: #cbd5e1;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+
+        .status-libero:hover {
+            border-color: #64748b !important;
+            background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
+        }
+
+        /* COLORI TAVOLI */
+        .c-blue {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+            color: white !important;
+            border-color: #1d4ed8 !important;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3) !important;
+        }
+
+        .c-green {
+            background: linear-gradient(135deg, #10b981 0%, #047857 100%) !important;
+            color: white !important;
+            border-color: #047857 !important;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3) !important;
+        }
+
+        .c-red {
+            background: linear-gradient(135deg, #ef4444 0%, #991b1b 100%) !important;
+            color: white !important;
+            border-color: #991b1b !important;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3) !important;
+        }
+
+        .c-purple {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%) !important;
+            color: white !important;
+            border-color: #6d28d9 !important;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3) !important;
+        }
+
+        .c-orange {
+            background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%) !important;
+            color: white !important;
+            border-color: #b45309 !important;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3) !important;
+        }
+
+        .c-slate {
+            background: linear-gradient(135deg, #475569 0%, #1e293b 100%) !important;
+            color: white !important;
+            border-color: #1e293b !important;
+            box-shadow: 0 4px 15px rgba(71, 85, 105, 0.3) !important;
+        }
+
+        .c-yellow {
+            background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%) !important;
+            color: #78350f !important;
+            border-color: #d97706 !important;
+            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3) !important;
+        }
+
+        .c-pink {
+            background: linear-gradient(135deg, #ec4899 0%, #be185d 100%) !important;
+            color: white !important;
+            border-color: #be185d !important;
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3) !important;
+        }
+
+        /* ANIMAZIONE CESTINO */
+        @keyframes pulse-red {
+            0%, 100% {
+                border-color: #991b1b;
+                box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+            }
+            50% {
+                border-color: #ef4444;
+                box-shadow: 0 0 30px rgba(239, 68, 68, 0.6);
+            }
+        }
+
+        .alert-partenza-cestino {
+            border: 4px solid #ef4444 !important;
+            animation: pulse-red 1.2s ease-in-out infinite !important;
+        }
+
+        /* MODAL */
+        .modal-bg {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* HEADER */
+        header {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.05) 0%, transparent 100%);
+            padding: 0.5rem 1.5rem;
+            border-radius: 1.5rem;
+            border: 2px solid rgba(59, 130, 246, 0.15);
+        }
+
+        .logo-img {
+            height: 80px;
+            width: 80px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+            transition: all 0.3s ease;
+            border-radius: 50%;
+            background: white;
+            padding: 4px;
+        }
+
+        .logo-img:hover {
+            transform: scale(1.08);
+            filter: drop-shadow(0 6px 16px rgba(59, 130, 246, 0.3));
+        }
+
+        .hotel-title h1 {
+            font-size: 1rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #1e3a8a;
+            line-height: 1.2;
+        }
+
+        .hotel-title span {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        /* NAV */
+        nav {
+            background: linear-gradient(90deg, #ffffff 0%, #f8fafc 100%);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        nav button {
+            transition: all 0.3s ease;
+        }
+
+        nav button:hover {
+            transform: translateY(-2px);
+        }
+
+        /* PULSANTI */
+        button {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+
+        .bg-blue-700 {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .bg-emerald-600 {
+            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .bg-slate-800 {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            box-shadow: 0 4px 15px rgba(30, 41, 59, 0.3);
+        }
+
+        /* SIDEBAR */
+        #statsMenu {
+            box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        }
+
+        /* INPUT */
+        input, select {
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            transform: scale(1.01);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* COLORI BOTTONI */
+        .color-btn {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .color-btn:hover {
+            transform: scale(1.15);
+        }
+
+        /* PRINT */
+        @media print {
+            body * { visibility: hidden; }
+            #printArea, #printArea * { visibility: visible; }
+            #printArea { position: absolute; left: 0; top: 0; width: 100%; }
+            .no-print { display: none !important; }
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            #gridSala { grid-template-columns: repeat(2, 1fr) !important; }
+            header { flex-wrap: wrap; gap: 1rem; height: auto !important; }
+            .logo-img { height: 60px; width: 60px; }
+        }
+
+        @media (max-width: 480px) {
+            #gridSala { grid-template-columns: 1fr !important; }
+            .logo-img { height: 50px; width: 50px; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 h-screen flex flex-col font-sans overflow-hidden text-slate-800">
+
+    <!-- HEADER -->
+    <header class="bg-white border-b-4 border-blue-800 p-4 h-24 flex justify-between items-center no-print z-50">
+        <div class="logo-container">
+            <img src="https://www.hotelsanvalentino.it/catalog/view/theme/hotel/image/svg/BASE-logo-WHT.svg" alt="Logo Hotel San Valentino" class="logo-img">
+            <div class="hotel-title">
+                <h1>🏨 Ristorante</h1>
+                <span>S. Valentino ⭐⭐⭐⭐</span>
+            </div>
+            <input type="date" id="mainDate" onchange="render()" class="bg-gradient-to-br from-blue-50 to-indigo-50 px-4 py-2 rounded-xl border-2 border-blue-300 font-black text-blue-800 outline-none shadow-md">
+        </div>
+        <div class="flex gap-2">
+            <button onclick="toggleStats()" class="bg-gradient-to-r from-slate-700 to-slate-900 text-white px-5 py-3 rounded-2xl font-black uppercase text-xs shadow-lg">📊 Statistiche</button>
+            <button onclick="apriNuovoGruppo()" class="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-5 py-3 rounded-2xl font-black uppercase text-xs shadow-lg">+ Nuovo Gruppo</button>
+        </div>
+    </header>
+
+    <nav class="bg-white p-3 flex gap-2 border-b no-print">
+        <button onclick="switchSala(1)" id="btnS1" class="flex-1 py-3 rounded-xl font-black bg-gradient-to-r from-blue-600 to-blue-800 text-white uppercase text-xs">Sala 1</button>
+        <button onclick="switchSala(2)" id="btnS2" class="flex-1 py-3 rounded-xl font-black bg-slate-100 text-slate-400 uppercase text-xs">Sala 2</button>
+        <button onclick="switchSala(3)" id="btnS3" class="flex-1 py-3 rounded-xl font-black bg-slate-100 text-slate-400 uppercase text-xs">Sala 3</button>
+    </nav>
+
+    <main id="gridSala" class="flex-1 p-6 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 overflow-y-auto no-print"></main>
+
+    <div id="printArea" class="hidden"></div>
+
+    <!-- SIDEBAR STATS -->
+    <div id="statsMenu" class="fixed inset-y-0 right-0 w-80 bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 p-6 overflow-y-auto border-l no-print">
+        <div class="flex justify-between items-center mb-6 border-b-2 pb-2 text-blue-800">
+            <h3 class="text-lg font-black uppercase">📋 Resoconto</h3>
+            <button onclick="toggleStats()" class="text-4xl text-slate-300">×</button>
+        </div>
+        <div id="statsList" class="space-y-3 mb-6"></div>
+        <button onclick="stampaReport()" class="w-full bg-gradient-to-r from-emerald-500 to-emerald-700 text-white font-black py-4 rounded-xl uppercase text-xs shadow-lg mb-6">🖨️ Stampa Liste Cestini</button>
+        <h4 class="font-black uppercase text-[10px] text-slate-400 mb-2 border-t pt-4">📅 Lista Tavoli</h4>
+        <div id="statsTables" class="space-y-1 text-[11px] font-bold"></div>
+    </div>
+
+    <!-- MODALE TAVOLO -->
+    <div id="modalDetail" class="modal-bg" onclick="if(event.target==this) closeModals()">
+        <div class="bg-white rounded-[2.5rem] p-8 w-full max-w-sm space-y-4 relative shadow-2xl" onclick="event.stopPropagation()">
+            <button onclick="closeModals()" class="absolute top-6 right-8 text-3xl text-slate-300">×</button>
+            <h3 class="text-xl font-black uppercase text-blue-800">🍽️ Gestione Tavolo</h3>
+            
+            <div class="grid grid-cols-2 gap-2">
+                <input type="text" id="mNewNum" placeholder="Es: 1 Bis" class="p-3 bg-blue-50 border-2 border-blue-200 rounded-xl font-black uppercase text-blue-800">
+                <input type="text" id="mRoom" placeholder="Camera" class="p-3 bg-slate-50 border-2 border-slate-200 rounded-xl font-black uppercase">
+            </div>
+            
+            <input type="text" id="mClient" placeholder="COGNOME OSPITE" class="w-full p-4 bg-slate-100 border-2 border-slate-200 rounded-xl font-black uppercase outline-none">
+            
+            <div class="grid grid-cols-2 gap-2">
+                <input type="number" id="mPax" placeholder="PAX" class="p-3 border-2 border-slate-200 rounded-xl font-black text-center text-lg">
+                <select id="mPlan" class="p-3 bg-gradient-to-r from-slate-700 to-slate-900 text-white rounded-xl font-black text-xs uppercase">
+                    <option value="FBB">FBB</option><option value="FB">FB</option>
+                    <option value="HB">HB</option><option value="BB">BB</option>
+                </select>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-2 text-[10px]">
+                <div><label class="font-black">DAL</label><input type="date" id="mStart" class="w-full p-2 bg-slate-50 border-2 border-slate-200 rounded-lg"></div>
+                <div><label class="font-black">AL</label><input type="date" id="mEnd" class="w-full p-2 bg-slate-50 border-2 border-slate-200 rounded-lg"></div>
+            </div>
+            
+            <div class="flex gap-2 justify-center py-3 bg-slate-50 rounded-xl p-3">
+                <button onclick="mSelectedCol='c-blue'" class="color-btn w-7 h-7 rounded-full bg-blue-500 border-4 border-white shadow-md"></button>
+                <button onclick="mSelectedCol='c-yellow'" class="color-btn w-7 h-7 rounded-full bg-yellow-500 border-4 border-white shadow-md"></button>
+                <button onclick="mSelectedCol='c-green'" class="color-btn w-7 h-7 rounded-full bg-emerald-500 border-4 border-white shadow-md"></button>
+                <button onclick="mSelectedCol='c-purple'" class="color-btn w-7 h-7 rounded-full bg-purple-500 border-4 border-white shadow-md"></button>
+                <button onclick="mSelectedCol='c-red'" class="color-btn w-7 h-7 rounded-full bg-red-600 border-4 border-white shadow-md"></button>
+                <button onclick="mSelectedCol='c-pink'" class="color-btn w-7 h-7 rounded-full bg-pink-500 border-4 border-white shadow-md"></button>
+            </div>
+            
+            <label class="flex items-center gap-3 bg-amber-50 p-4 rounded-xl border-2 border-amber-200 cursor-pointer">
+                <input type="checkbox" id="mSacco" class="w-5 h-5"> 
+                <span class="font-black text-amber-800 uppercase text-xs">🥖 Richiesta Cestino</span>
+            </label>
+            
+            <div class="flex gap-2 pt-2">
+                <button onclick="salvaTavolo()" class="flex-1 bg-gradient-to-r from-blue-600 to-blue-800 text-white font-black py-4 rounded-xl uppercase text-xs shadow-lg">✓ Salva</button>
+                <button onclick="liberaTavolo()" class="bg-red-50 text-red-600 px-4 rounded-xl font-bold border-2 border-red-200">🗑️ Libera</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALE GRUPPO -->
+    <div id="modalGroup" class="modal-bg" onclick="if(event.target==this) closeModals()">
+        <div class="bg-white rounded-[2.5rem] p-8 w-full max-w-md space-y-4 relative shadow-2xl" onclick="event.stopPropagation()">
+            <button onclick="closeModals()" class="absolute top-6 right-8 text-3xl text-slate-300">×</button>
+            <h3 class="text-xl font-black uppercase text-blue-800">👥 Assegnazione Tavoli Gruppo</h3>
+            
+            <input type="text" id="gClient" placeholder="NOME GRUPPO / AGENZIA" class="w-full p-4 bg-slate-100 border-2 border-slate-200 rounded-xl font-black uppercase outline-none">
+            
+            <div class="grid grid-cols-2 gap-2">
+                <input type="number" id="gPaxTot" placeholder="PAX TOTALI" class="p-4 border-2 border-blue-300 rounded-xl font-black text-center text-xl text-blue-700">
+                <select id="gPlan" class="p-4 bg-gradient-to-r from-slate-700 to-slate-900 text-white rounded-xl font-black uppercase">
+                    <option value="FBB">FBB</option><option value="FB">FB</option>
+                    <option value="HB">HB</option><option value="BB">BB</option>
+                </select>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-2 text-[10px]">
+                <div><label class="font-black uppercase ml-1">Arrivo</label><input type="date" id="gStart" class="w-full p-2 bg-slate-50 border-2 border-slate-200 rounded-lg"></div>
+                <div><label class="font-black uppercase ml-1">Partenza</label><input type="date" id="gEnd" class="w-full p-2 bg-slate-50 border-2 border-slate-200 rounded-lg"></div>
+            </div>
+            
+            <label class="flex items-center gap-3 bg-amber-50 p-4 rounded-xl border-2 border-amber-200 cursor-pointer">
+                <input type="checkbox" id="gSacco" class="w-5 h-5"> 
+                <span class="font-black text-amber-800 uppercase text-xs">🥖 Cestino per tutti (Partenza)</span>
+            </label>
+            
+            <button onclick="salvaGruppoSmart()" class="w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white font-black py-5 rounded-2xl uppercase shadow-xl">👥 Assegna i Tavoli</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSala = 1;
+        let activeId = null;
+        let mSelectedCol = 'c-blue';
+        let db = JSON.parse(localStorage.getItem('hotelSV_data_final')) || {};
+
+        document.getElementById('mainDate').valueAsDate = new Date();
+
+        function switchSala(n) {
+            currentSala = n;
+            [1,2,3].forEach(i => {
+                const b = document.getElementById('btnS'+i);
+                if(b) b.className = (i==n) ? "flex-1 py-3 rounded-xl font-black bg-gradient-to-r from-blue-600 to-blue-800 text-white uppercase text-xs" : "flex-1 py-3 rounded-xl font-black bg-slate-100 text-slate-400 uppercase text-xs";
+            });
+            render();
+        }
+
+        function isFree(id, start, end) {
+            const data = db[id];
+            if (!data) return true;
+            return (end < data.start || start > data.end);
+        }
+
+        function render() {
+            const grid = document.getElementById('gridSala');
+            const today = document.getElementById('mainDate').value;
+            grid.innerHTML = '';
+            
+            for(let i=1; i<=32; i++) {
+                const id = `S${currentSala}-T${i}`;
+                const data = db[id];
+                const active = data && today >= data.start && today <= data.end;
+                const isCestinoDay = active && data.sacco && today === data.end;
+
+                const btn = document.createElement('div');
+                btn.className = `table-btn ${active ? data.color : 'status-libero'} ${isCestinoDay ? 'alert-partenza-cestino' : ''}`;
+                btn.onclick = () => openEdit(id, i);
+                
+                btn.innerHTML = `
+                    <span class="absolute top-2 left-3 text-[12px] font-black ${active ? 'opacity-40' : 'opacity-100'}">
+                        ${active ? (data.displayNum || 'TAV. '+i) : 'TAV. '+i}
+                    </span>
+                    ${active ? `
+                        <span class="text-lg font-black">${data.room}</span>
+                        <span class="text-[10px] font-black uppercase truncate w-full text-center px-1">${data.client}</span>
+                        <div class="mt-2 text-[10px] font-black bg-white/20 px-2 py-1 rounded-full flex items-center gap-1">
+                            👤${data.pax} ${data.plan} ${data.sacco ? '🥖' : ''}
+                        </div>
+                    ` : '<span class="text-[10px] font-bold mt-4 tracking-widest">LIBERO</span>'}
+                `;
+                grid.appendChild(btn);
+            }
+            updateStats();
+        }
+
+        function apriNuovoGruppo() {
+            document.getElementById('gClient').value = "";
+            document.getElementById('gPaxTot').value = "";
+            document.getElementById('gStart').value = document.getElementById('mainDate').value;
+            document.getElementById('gEnd').value = "";
+            document.getElementById('gSacco').checked = false;
+            openModal('modalGroup');
+        }
+
+        function openEdit(id, num) {
+            activeId = id;
+            const d = db[id] || {displayNum: 'TAV. '+num, room:'', client:'', pax:2, plan:'FBB', start:document.getElementById('mainDate').value, end:'', sacco:false, color:'c-blue'};
+            document.getElementById('mNewNum').value = d.displayNum || "TAV. " + num;
+            document.getElementById('mRoom').value = d.room;
+            document.getElementById('mClient').value = d.client;
+            document.getElementById('mPax').value = d.pax;
+            document.getElementById('mPlan').value = d.plan;
+            document.getElementById('mStart').value = d.start;
+            document.getElementById('mEnd').value = d.end;
+            document.getElementById('mSacco').checked = d.sacco;
+            mSelectedCol = d.color || 'c-blue';
+            openModal('modalDetail');
+        }
+
+        function salvaTavolo() {
+            db[activeId] = {
+                displayNum: document.getElementById('mNewNum').value.toUpperCase(),
+                room: document.getElementById('mRoom').value.toUpperCase(),
+                client: document.getElementById('mClient').value.toUpperCase(),
+                pax: document.getElementById('mPax').value,
+                plan: document.getElementById('mPlan').value,
+                start: document.getElementById('mStart').value,
+                end: document.getElementById('mEnd').value,
+                sacco: document.getElementById('mSacco').checked,
+                color: mSelectedCol
+            };
+            save();
+        }
+
+        function salvaGruppoSmart() {
+            const nome = document.getElementById('gClient').value.toUpperCase();
+            const paxTot = parseInt(document.getElementById('gPaxTot').value);
+            const start = document.getElementById('gStart').value;
+            const end = document.getElementById('gEnd').value;
+            const sacco = document.getElementById('gSacco').checked;
+            const plan = document.getElementById('gPlan').value;
+            const colori = ['c-purple', 'c-green', 'c-orange', 'c-slate'];
+            const randomColor = colori[Math.floor(Math.random() * colori.length)];
+
+            if(!nome || !paxTot || !start || !end) return alert("Inserisci tutti i dati!");
+
+            let tavoliLiberi = [];
+            for(let i=1; i<=24; i++) {
+                const id = `S${currentSala}-T${i}`;
+                if(isFree(id, start, end)) tavoliLiberi.push(id);
+            }
+
+            const tavoliNecessari = Math.ceil(paxTot / 4);
+            if(tavoliLiberi.length < tavoliNecessari) {
+                return alert(`Posti insufficienti! Mancano ${tavoliNecessari - tavoliLiberi.length} tavoli liberi.`);
+            }
+
+            let paxRimanenti = paxTot;
+            for(let i=0; i < tavoliNecessari; i++) {
+                const paxTavolo = paxRimanenti >= 4 ? 4 : paxRimanenti;
+                db[tavoliLiberi[i]] = { 
+                    displayNum: 'TAV. ' + tavoliLiberi[i].split('T')[1], 
+                    room: 'GRP', client: nome, pax: paxTavolo, 
+                    plan: plan, start, end, sacco, color: randomColor 
+                };
+                paxRimanenti -= paxTavolo;
+            }
+            save();
+        }
+
+        function updateStats() {
+            const today = document.getElementById('mainDate').value;
+            const active = Object.values(db).filter(d => today >= d.start && today <= d.end);
+            const totalPax = active.reduce((s, x) => s + (parseInt(x.pax)||0), 0);
+            const totalBaguette = active.filter(d => d.sacco && today === d.end).reduce((s, x) => s + (parseInt(x.pax)||0), 0);
+
+            document.getElementById('statsList').innerHTML = `
+                <div class="p-4 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-2xl shadow-lg">
+                    <p class="text-[10px] font-bold uppercase opacity-80">👥 Coperti Totali</p>
+                    <p class="text-4xl font-black">${totalPax}</p>
+                </div>
+                <div class="p-4 bg-gradient-to-r from-amber-400 to-amber-600 text-amber-900 rounded-2xl shadow-lg">
+                    <p class="text-[10px] font-bold uppercase opacity-80">🥖 Cestini da preparare</p>
+                    <p class="text-4xl font-black">${totalBaguette}</p>
+                </div>
+            `;
+            let htmlList = "";
+            active.forEach(t => {
+                htmlList += `<div class="flex justify-between border-b py-2 hover:bg-slate-50 px-1 rounded"><span class="font-bold text-slate-700">${t.displayNum} - ${t.client}</span> <span class="text-blue-700 font-black">${t.pax} ${t.plan}</span></div>`;
+            });
+            document.getElementById('statsTables').innerHTML = htmlList;
+        }
+
+        function stampaReport() {
+            const today = document.getElementById('mainDate').value;
+            const active = Object.values(db).filter(d => today >= d.start && today <= d.end);
+            const cestini = active.filter(d => d.sacco && today === d.end);
+            const totalBaguette = cestini.reduce((s, x) => s + (parseInt(x.pax)||0), 0);
+
+            let content = `<div style="font-family:sans-serif; padding:40px; background:linear-gradient(135deg, #f0f4f8 0%, #d9e8f5 100%);"><h1 style="text-align:center; border-bottom:4px solid #1e3a8a; color:#1e3a8a; padding-bottom:20px;">🏨 HOTEL SAN VALENTINO - CUCINA 🍽️</h1><p style="text-align:center; font-size:18px; color:#475569; margin-bottom:30px; font-weight:bold;">${today}</p><div style="display:flex; gap:20px; margin:20px 0;"><div style="flex:1; background:linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); padding:20px; border-radius:15px; border-left:5px solid #3b82f6;"><h3 style="color:#1e40af; margin:0 0 15px 0;">📋 RIEPILOGO PASTI</h3><p style="margin:8px 0; color:#1e3a8a;">FBB: <strong>${active.filter(x=>x.plan==='FBB').reduce((s,c)=>s+(parseInt(c.pax)||0),0)}</strong> | FB: <strong>${active.filter(x=>x.plan==='FB').reduce((s,c)=>s+(parseInt(c.pax)||0),0)}</strong></p><p style="margin:8px 0; color:#1e3a8a;">HB: <strong>${active.filter(x=>x.plan==='HB').reduce((s,c)=>s+(parseInt(c.pax)||0),0)}</strong> | BB: <strong>${active.filter(x=>x.plan==='BB').reduce((s,c)=>s+(parseInt(c.pax)||0),0)}</strong></p><h2 style="border-top:2px solid #3b82f6; margin-top:15px; padding-top:15px; color:#1e3a8a;">👥 TOTALE COPERTI: ${active.reduce((s,x)=>s+(parseInt(x.pax)||0),0)}</h2></div><div style="flex:1; background:linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); padding:20px; border:3px solid #fbbf24; border-radius:15px; text-align:center;"><h3 style="color:#b45309;">🥖 CESTINI TOTALI</h3><div style="font-size:5rem; color:#d97706; font-weight:900;">${totalBaguette}</div></div></div><table style="width:100%; border-collapse:collapse; margin-top:30px;"><tr style="background:#1e3a8a; color:white;"><th style="padding:12px; border:1px solid #ddd; text-align:left;">Tavolo</th><th style="padding:12px; border:1px solid #ddd; text-align:left;">Ospite</th><th style="padding:12px; border:1px solid #ddd; text-align:center;">Q.tà</th></tr>${cestini.map(c => `<tr><td style="border:1px solid #ddd; padding:10px;">${c.displayNum}</td><td style="border:1px solid #ddd; padding:10px;">${c.client}</td><td style="border:1px solid #ddd; padding:10px; text-align:center; font-weight:bold;">${c.pax}</td></tr>`).join('')}</table></div>`;
+            document.getElementById('printArea').innerHTML = content;
+            window.print();
+        }
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModals() { document.querySelectorAll('.modal-bg').forEach(m => m.style.display = 'none'); }
+        function save() { localStorage.setItem('hotelSV_data_final', JSON.stringify(db)); closeModals(); render(); }
+        function toggleStats() { document.getElementById('statsMenu').classList.toggle('translate-x-full'); }
+        function liberaTavolo() { if(confirm("Sei sicuro di voler cancellare questa prenotazione?")) { delete db[activeId]; save(); } }
+
+        render();
+    </script>
+</body>
+</html>
